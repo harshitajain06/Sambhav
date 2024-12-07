@@ -13,6 +13,7 @@ import { useColorScheme } from '../../hooks/useColorScheme';
 import { Ionicons } from '@expo/vector-icons'; // If using Expo
 import { signOut } from 'firebase/auth'; // Ensure Firebase auth is configured
 import { auth } from '../../config/firebase'; // Adjust the path to your Firebase config file
+import AdditionGameLevelScreen from './AdditionGameLevelScreen'; // Import Addition Game Level Screen
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -122,6 +123,9 @@ export default function StackLayout() {
 
       {/* Main App with Drawer */}
       <Stack.Screen name="Drawer" component={DrawerNavigator} />
+
+      {/* Addition Game Level Screens */}
+      <Stack.Screen name="AdditionGameLevel" component={AdditionGameLevelScreen} />
     </Stack.Navigator>
   );
 }

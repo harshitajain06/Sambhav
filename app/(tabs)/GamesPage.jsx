@@ -52,7 +52,6 @@ const GamesPage = () => {
 
   const handleGamePress = (game) => {
     if (game.title === 'Addition Game') {
-      // Show levels for the Addition Game
       setSelectedLevels(game.levels || []);
       setModalVisible(true);
     } else {
@@ -105,6 +104,7 @@ const GamesPage = () => {
                   style={styles.levelCard}
                   onPress={() => handleLevelSelect(item)}
                 >
+                  {/* Make sure we are rendering title and icon properly */}
                   <View style={styles.iconWrapper}>
                     <Ionicons name={item.icon} size={30} color="#fff" />
                   </View>
