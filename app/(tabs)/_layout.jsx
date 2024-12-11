@@ -1,25 +1,26 @@
 import React from 'react';
-import { Alert } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { useNavigation } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomePage from './HomePage';
 import GamesPage from './GamesPage';
 import RegisterScreen from './Register';
 import Login from './Login';
+import AdditionGameLevelScreen from './AdditionGameLevelScreen';
+import LearnChessLevelScreen from './LearnChessLevelScreen'; // New Learn Chess Level Screen
+import SolvePuzzlesLevelScreen from './SolvePuzzlesLevelScreen'; // New Solve Puzzles Level Screen
+import MatchGameScreen from './MatchGameScreen'; // New Match Game Screen
 import { Colors } from '../../constants/Colors';
 import { useColorScheme } from '../../hooks/useColorScheme';
-import { Ionicons } from '@expo/vector-icons'; // If using Expo
-import { signOut } from 'firebase/auth'; // Ensure Firebase auth is configured
-import { auth } from '../../config/firebase'; // Adjust the path to your Firebase config file
-import AdditionGameLevelScreen from './AdditionGameLevelScreen'; // Import Addition Game Level Screen
+import { Ionicons } from '@expo/vector-icons';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../config/firebase';
+import { useNavigation } from '@react-navigation/native';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
-// Bottom Tab Navigator Component
 const BottomTabs = () => {
   const colorScheme = useColorScheme();
 
@@ -29,18 +30,14 @@ const BottomTabs = () => {
         headerShown: false,
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         tabBarInactiveTintColor: 'gray',
-        tabBarStyle: {
-          backgroundColor: Colors[colorScheme ?? 'light'].background,
-        },
+        tabBarStyle: { backgroundColor: Colors[colorScheme ?? 'light'].background },
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-
           if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Games') {
             iconName = focused ? 'game-controller' : 'game-controller-outline';
           }
-
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}
@@ -51,44 +48,26 @@ const BottomTabs = () => {
   );
 };
 
-// Drawer Navigator Component
 const DrawerNavigator = () => {
   const navigation = useNavigation();
 
   const handleLogout = () => {
-    Alert.alert(
-      'Confirm Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: () => {
-            signOut(auth)
-              .then(() => {
-                navigation.replace('Login'); // Navigate to Login screen
-              })
-              .catch((err) => {
-                console.error('Logout Error:', err);
-                Alert.alert('Error', 'Failed to logout. Please try again.');
-              });
-          },
-        },
-      ],
-      { cancelable: true }
-    );
+    signOut(auth)
+      .then(() => {
+        navigation.replace('Login');
+      })
+      .catch((err) => {
+        console.error('Logout Error:', err);
+        Alert.alert('Error', 'Failed to logout. Please try again.');
+      });
   };
 
   return (
     <Drawer.Navigator initialRouteName="MainTabs">
       <Drawer.Screen name="MainTabs" component={BottomTabs} options={{ title: 'Home' }} />
-      {/* Additional screens can be added here if needed */}
-
-      {/* Logout option */}
       <Drawer.Screen
         name="Logout"
-        component={BottomTabs}
+        component={BottomTabs} // Not navigating to any screen
         options={{
           title: 'Logout',
           drawerIcon: ({ color, size }) => (
@@ -106,26 +85,27 @@ const DrawerNavigator = () => {
   );
 };
 
-// Stack Navigator Component
 export default function StackLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: Colors[colorScheme ?? 'light'].background },
       }}
     >
       {/* Authentication Screens */}
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Register" component={RegisterScreen} />
 
-      {/* Main App with Drawer */}
+      {/* Main App with Drawer Navigator */}
       <Stack.Screen name="Drawer" component={DrawerNavigator} />
 
-      {/* Addition Game Level Screens */}
+      {/* Game Level Screens */}
       <Stack.Screen name="AdditionGameLevel" component={AdditionGameLevelScreen} />
+      <Stack.Screen name="LearnChessLevel" component={LearnChessLevelScreen} />
+      <Stack.Screen name="SolvePuzzlesLevel" component={SolvePuzzlesLevelScreen} />
+
+      {/* Match Game Screen */}
+      <Stack.Screen name="MatchGameScreen" component={MatchGameScreen} />
     </Stack.Navigator>
   );
 }

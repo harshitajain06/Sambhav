@@ -43,27 +43,39 @@ const gamesData = [
       { id: '3', title: 'Level 3: Advanced Addition', icon: 'add' },
     ],
   },
+  {
+    id: '4',
+    title: 'Match Game', // New Match Game entry
+    image: require('../../assets/images/Logo.png'),
+    levels: [], // No levels for Match Game
+  },
 ];
 
 const GamesPage = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedLevels, setSelectedLevels] = useState([]);
+  const [selectedGame, setSelectedGame] = useState(null);
   const navigation = useNavigation();
 
   const handleGamePress = (game) => {
-    if (game.title === 'Addition Game') {
-      setSelectedLevels(game.levels || []);
+    if (game.levels && game.levels.length > 0) {
+      // Game has levels
+      setSelectedGame(game);
+      setSelectedLevels(game.levels);
       setModalVisible(true);
     } else {
-      setSelectedLevels(game.levels || []);
-      setModalVisible(true);
+      // Game does not have levels, navigate directly
+      navigation.navigate(`${game.title.replace(/\s+/g, '')}Screen`); // e.g., 'MatchGameScreen'
     }
   };
 
   const handleLevelSelect = (level) => {
-    // Navigate to the Addition Game with selected level
-    navigation.navigate('AdditionGameLevel', { level });
-    setModalVisible(false);
+    if (selectedGame) {
+      // Dynamically navigate based on the selected game
+      const gameTitle = selectedGame.title.replace(/\s+/g, '');
+      navigation.navigate(`${gameTitle}Level`, { level });
+      setModalVisible(false);
+    }
   };
 
   const renderGameCard = ({ item }) => (
@@ -88,43 +100,44 @@ const GamesPage = () => {
       />
 
       {/* Modal for Levels */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Levels</Text>
-            <FlatList
-              data={selectedLevels}
-              renderItem={({ item }) => (
-                <Pressable
-                  style={styles.levelCard}
-                  onPress={() => handleLevelSelect(item)}
-                >
-                  {/* Make sure we are rendering title and icon properly */}
-                  <View style={styles.iconWrapper}>
-                    <Ionicons name={item.icon} size={30} color="#fff" />
-                  </View>
-                  <Text style={styles.levelText}>{item.title}</Text>
-                </Pressable>
-              )}
-              keyExtractor={(item) => item.id}
-              horizontal={true}
-              contentContainerStyle={styles.levelList}
-              showsHorizontalScrollIndicator={false}
-            />
-            <Pressable
-              style={styles.closeButton}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </Pressable>
+      {selectedGame && selectedGame.levels.length > 0 && (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Select Level</Text>
+              <FlatList
+                data={selectedLevels}
+                renderItem={({ item }) => (
+                  <Pressable
+                    style={styles.levelCard}
+                    onPress={() => handleLevelSelect(item)}
+                  >
+                    <View style={styles.iconWrapper}>
+                      <Ionicons name={item.icon} size={30} color="#fff" />
+                    </View>
+                    <Text style={styles.levelText}>{item.title}</Text>
+                  </Pressable>
+                )}
+                keyExtractor={(item) => item.id}
+                horizontal={true}
+                contentContainerStyle={styles.levelList}
+                showsHorizontalScrollIndicator={false}
+              />
+              <Pressable
+                style={styles.closeButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.closeButtonText}>Close</Text>
+              </Pressable>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      )}
     </View>
   );
 };
@@ -134,12 +147,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#DCE9FE',
     paddingHorizontal: 20,
+    paddingTop: 20,
   },
   sectionTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#567396',
-    marginVertical: 10,
+    marginBottom: 20,
+    textAlign: 'center',
   },
   cardList: {
     paddingBottom: 20,
@@ -148,84 +163,82 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 10,
-    marginBottom: 15,
-    padding: 15,
+    borderRadius: 15,
+    marginBottom: 20,
+    padding: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
   },
   cardImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 10,
-    marginRight: 15,
+    width: 60,
+    height: 60,
+    borderRadius: 15,
+    marginRight: 20,
   },
   cardTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
-    width: '90%',
+    width: '85%',
     backgroundColor: '#fff',
-    borderRadius: 15,
-    padding: 25,
+    borderRadius: 20,
+    padding: 30,
     alignItems: 'center',
-    elevation: 10,
+    elevation: 20,
   },
   modalTitle: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#567396',
-    marginBottom: 20,
+    marginBottom: 25,
   },
   levelList: {
     justifyContent: 'center',
     paddingBottom: 20,
   },
   levelCard: {
-    flex: 1,
     alignItems: 'center',
-    marginVertical: 10,
-    marginHorizontal: 15,
-    backgroundColor: '#f2f2f2',
-    padding: 15,
-    borderRadius: 10,
+    marginHorizontal: 10,
+    backgroundColor: '#567396',
+    padding: 20,
+    borderRadius: 15,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 4,
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   iconWrapper: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#567396',
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: '#333',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 5,
+    marginBottom: 10,
   },
   levelText: {
-    fontSize: 16,
-    color: '#333',
+    fontSize: 18,
+    color: '#fff',
     textAlign: 'center',
   },
   closeButton: {
-    marginTop: 25,
+    marginTop: 20,
     backgroundColor: '#567396',
     borderRadius: 10,
     paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingHorizontal: 25,
   },
   closeButtonText: {
     color: '#fff',
